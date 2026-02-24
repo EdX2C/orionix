@@ -1,0 +1,52 @@
+Γû▓ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 1163.5ms
+  Running TypeScript ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/32) ...
+  Generating static pages using 15 workers (8/32) 
+  Generating static pages using 15 workers (16/32) 
+  Generating static pages using 15 workers (24/32) 
+Γ£ô Generating static pages using 15 workers (32/32) in 201.6ms
+  Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ Γùï /app
+Γö£ Γùï /app/admin/courses
+Γö£ Γùï /app/admin/dashboard
+Γö£ Γùï /app/admin/notifications
+Γö£ Γùï /app/admin/reports
+Γö£ Γùï /app/admin/sessions
+Γö£ Γùï /app/admin/settings
+Γö£ Γùï /app/admin/users
+Γö£ Γùï /app/student/assignments
+Γö£ Γùï /app/student/courses
+Γö£ ╞Æ /app/student/courses/[id]
+Γö£ Γùï /app/student/dashboard
+Γö£ Γùï /app/student/notifications
+Γö£ Γùï /app/student/profile
+Γö£ Γùï /app/student/progress
+Γö£ Γùï /app/teacher/assignments
+Γö£ Γùï /app/teacher/courses
+Γö£ ╞Æ /app/teacher/courses/[id]
+Γö£ Γùï /app/teacher/courses/new
+Γö£ Γùï /app/teacher/dashboard
+Γö£ Γùï /app/teacher/notifications
+Γö£ Γùï /app/teacher/profile
+Γö£ Γùï /app/teacher/students
+Γö£ Γùï /auth/forgot-password
+Γö£ Γùï /auth/login
+Γö£ Γùï /auth/register
+Γö£ Γùï /courses
+Γö£ ╞Æ /courses/[id]
+Γö£ Γùï /forbidden
+Γö£ Γùï /legal/privacy
+Γöö Γùï /legal/terms
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
