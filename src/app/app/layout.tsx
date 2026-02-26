@@ -199,7 +199,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                               {/* ── Main Content ── */}
                               <div className="flex-1 flex flex-col min-h-screen">
                                         {/* Topbar */}
-                                        <header className="h-16 flex items-center justify-between px-5 lg:px-8 border-b border-border-subtle topbar-shell">
+                                        <header className="h-16 flex items-center justify-between px-5 lg:px-8 border-b border-border-subtle topbar-shell relative z-50">
                                                   <div className="flex items-center gap-3">
                                                             <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-text-muted hover:text-text-primary">
                                                                       <Menu className="w-5 h-5" />

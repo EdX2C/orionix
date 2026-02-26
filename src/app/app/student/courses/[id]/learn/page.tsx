@@ -8,7 +8,7 @@ import { Course, Module } from '@/types';
 import Logo from '@/components/ui/Logo';
 import {
           ArrowLeft, ChevronDown, ChevronRight, PlayCircle, FileText,
-          CheckCircle, Circle, MessageSquare, Maximize, Settings
+          CheckCircle, Circle, MessageSquare, Maximize, Settings, UploadCloud
 } from 'lucide-react';
 
 export default function CoursePlayerPage() {
@@ -58,12 +58,22 @@ export default function CoursePlayerPage() {
           };
 
           const toggleComplete = () => {
-                    // Fake completion toggle for demo purposes
                     setModules(prev => prev.map(m => {
                               if (m.id !== activeModule) return m;
                               return {
                                         ...m,
                                         units: m.units.map(u => u.id === activeUnit ? { ...u, isCompleted: !u.isCompleted } : u)
+                              };
+                    }));
+          };
+
+          const toggleUnitComplete = (mId: string, uId: string, e?: React.MouseEvent) => {
+                    if (e) e.stopPropagation();
+                    setModules(prev => prev.map(m => {
+                              if (m.id !== mId) return m;
+                              return {
+                                        ...m,
+                                        units: m.units.map(u => u.id === uId ? { ...u, isCompleted: !u.isCompleted } : u)
                               };
                     }));
           };
@@ -122,34 +132,63 @@ export default function CoursePlayerPage() {
                                         {/* Left: Video/Content Area */}
                                         <main className="flex-1 flex flex-col bg-black relative">
 
-                                                  {/* Mock Video Container */}
-                                                  <div className="w-full flex-1 relative flex items-center justify-center bg-orion-950 overflow-hidden group">
-                                                            {/* Mesh background for the fake "video" */}
-                                                            <div className="absolute inset-0 mesh-gradient opacity-40 mix-blend-screen" />
-                                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
-
-                                                            {/* Play Button Overlay */}
-                                                            <button className="relative z-20 w-20 h-20 rounded-full bg-nebula-500/20 backdrop-blur-md border border-nebula-400/30 flex items-center justify-center hover:scale-110 hover:bg-nebula-500/40 transition-transform cursor-pointer group-hover:shadow-[0_0_40px_rgba(108,92,231,0.5)]">
-                                                                      <PlayCircle className="w-10 h-10 text-white ml-1" />
-                                                            </button>
-
-                                                            {/* Title overlay */}
-                                                            <div className="absolute bottom-6 left-6 z-20">
-                                                                      <span className="badge badge-purple mb-2">Lección {currentMod?.order}.1</span>
-                                                                      <h2 className="text-2xl font-display font-bold text-white">{currentLesson?.title || 'Contenido de la lección'}</h2>
-                                                            </div>
-
-                                                            {/* Video Controls Mock */}
-                                                            <div className="absolute bottom-0 inset-x-0 h-1.5 bg-white/20 z-20 group-hover:h-2 transition-all cursor-pointer">
-                                                                      <div className="h-full bg-nebula-500 w-1/3 relative">
-                                                                                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white scale-0 group-hover:scale-100 transition-transform" />
+                                                  {currentLesson?.type === 'activity' ? (
+                                                            <div className="w-full flex-1 relative flex flex-col items-center justify-center bg-orion-950 overflow-hidden group p-8">
+                                                                      <div className="absolute inset-0 mesh-gradient opacity-20" />
+                                                                      <div className="z-20 max-w-2xl w-full bg-orion-900/50 backdrop-blur-md border border-border-subtle rounded-2xl p-8 shadow-2xl">
+                                                                                <div className="flex items-center gap-4 mb-6">
+                                                                                          <div className="w-12 h-12 rounded-xl bg-astral-500/20 border border-astral-500/30 flex items-center justify-center">
+                                                                                                    <FileText className="w-6 h-6 text-astral-400" />
+                                                                                          </div>
+                                                                                          <div>
+                                                                                                    <h2 className="text-xl font-display font-bold text-text-primary">{currentLesson.title}</h2>
+                                                                                                    <p className="text-sm text-text-muted">Entrega de tarea • {currentLesson.duration}</p>
+                                                                                          </div>
+                                                                                </div>
+                                                                                <p className="text-sm text-text-secondary mb-8">
+                                                                                          Para esta actividad, debes desarrollar el proyecto final del módulo y subir el código fuente o el documento en formato PDF. Asegúrate de cumplir con todos los requisitos de entrega.
+                                                                                </p>
+                                                                                <div className="border-2 border-dashed border-border-default rounded-xl p-8 text-center hover:bg-surface-glass hover:border-nebula-500/50 transition-colors cursor-pointer mb-6">
+                                                                                          <UploadCloud className="w-8 h-8 text-text-muted mx-auto mb-3" />
+                                                                                          <p className="text-sm font-medium text-text-primary mb-1">Haz clic para subir tu archivo</p>
+                                                                                          <p className="text-xs text-text-muted">PDF, ZIP o RAR (máx. 50MB)</p>
+                                                                                </div>
+                                                                                <div className="flex justify-end">
+                                                                                          <button onClick={() => toggleUnitComplete(activeModule!, activeUnit!)} className="btn-primary">
+                                                                                                    {currentLesson.isCompleted ? 'Actualizar Entrega' : 'Entregar Tarea'}
+                                                                                          </button>
+                                                                                </div>
                                                                       </div>
                                                             </div>
-                                                            <div className="absolute bottom-4 right-6 z-20 flex items-center gap-4 text-white/70 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                      <Settings className="w-5 h-5 hover:text-white cursor-pointer" />
-                                                                      <Maximize className="w-5 h-5 hover:text-white cursor-pointer" />
+                                                  ) : (
+                                                            <div className="w-full flex-1 relative flex items-center justify-center bg-orion-950 overflow-hidden group">
+                                                                      {/* Mesh background for the fake "video" */}
+                                                                      <div className="absolute inset-0 mesh-gradient opacity-40 mix-blend-screen" />
+                                                                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+
+                                                                      {/* Play Button Overlay */}
+                                                                      <button className="relative z-20 w-20 h-20 rounded-full bg-nebula-500/20 backdrop-blur-md border border-nebula-400/30 flex items-center justify-center hover:scale-110 hover:bg-nebula-500/40 transition-transform cursor-pointer group-hover:shadow-[0_0_40px_rgba(108,92,231,0.5)]">
+                                                                                <PlayCircle className="w-10 h-10 text-white ml-1" />
+                                                                      </button>
+
+                                                                      {/* Title overlay */}
+                                                                      <div className="absolute bottom-6 left-6 z-20">
+                                                                                <span className="badge badge-purple mb-2">Lección {currentMod?.order}.1</span>
+                                                                                <h2 className="text-2xl font-display font-bold text-white">{currentLesson?.title || 'Contenido de la lección'}</h2>
+                                                                      </div>
+
+                                                                      {/* Video Controls Mock */}
+                                                                      <div className="absolute bottom-0 inset-x-0 h-1.5 bg-white/20 z-20 group-hover:h-2 transition-all cursor-pointer">
+                                                                                <div className="h-full bg-nebula-500 w-1/3 relative">
+                                                                                          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white scale-0 group-hover:scale-100 transition-transform" />
+                                                                                </div>
+                                                                      </div>
+                                                                      <div className="absolute bottom-4 right-6 z-20 flex items-center gap-4 text-white/70 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                <Settings className="w-5 h-5 hover:text-white cursor-pointer" />
+                                                                                <Maximize className="w-5 h-5 hover:text-white cursor-pointer" />
+                                                                      </div>
                                                             </div>
-                                                  </div>
+                                                  )}
 
                                                   {/* Lesson Metadata Bar */}
                                                   <div className="h-16 bg-orion-900 border-t border-border-subtle flex items-center justify-between px-6 shrink-0 z-30">
@@ -208,14 +247,14 @@ export default function CoursePlayerPage() {
                                                                                                                                   onClick={() => handleUnitClick(m.id, u.id)}
                                                                                                                                   className={`w-full flex items-start gap-3 p-2.5 rounded-lg text-left transition-colors group ${isActive ? 'bg-nebula-500/10 text-nebula-300' : 'hover:bg-surface-glass text-text-secondary hover:text-text-primary'}`}
                                                                                                                         >
-                                                                                                                                  <div className="shrink-0 mt-0.5">
+                                                                                                                                  <div className="shrink-0 mt-0.5" onClick={(e) => toggleUnitComplete(m.id, u.id, e)} role="button" aria-label="Marcar como completado" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && toggleUnitComplete(m.id, u.id)}>
                                                                                                                                             {u.isCompleted
-                                                                                                                                                      ? <CheckCircle className="w-4 h-4 text-emerald-400" />
+                                                                                                                                                      ? <CheckCircle className="w-4 h-4 text-emerald-400 hover:text-emerald-500 transition-colors" />
                                                                                                                                                       : isActive
-                                                                                                                                                                ? <PlayCircle className="w-4 h-4 text-nebula-400" />
+                                                                                                                                                                ? <PlayCircle className="w-4 h-4 text-nebula-400 hover:text-nebula-500 transition-colors" />
                                                                                                                                                                 : u.type === 'video'
-                                                                                                                                                                          ? <Circle className="w-4 h-4 text-text-muted group-hover:text-nebula-400/50" />
-                                                                                                                                                                          : <FileText className="w-4 h-4 text-text-muted group-hover:text-nebula-400/50" />
+                                                                                                                                                                          ? <Circle className="w-4 h-4 text-text-muted hover:text-text-primary transition-colors" />
+                                                                                                                                                                          : <FileText className="w-4 h-4 text-text-muted hover:text-text-primary transition-colors" />
                                                                                                                                             }
                                                                                                                                   </div>
                                                                                                                                   <div className="flex-1 min-w-0">

@@ -23,7 +23,12 @@ export default function CourseDetailPage() {
           const [assignments, setAssignments] = useState<Assignment[]>([]);
           const [loading, setLoading] = useState(true);
           const [openModules, setOpenModules] = useState<Set<string>>(new Set());
-          const [tab, setTab] = useState<'content' | 'announcements' | 'assignments'>('content');
+          const [tab, setTab] = useState<'content' | 'announcements' | 'assignments' | 'reviews'>('content');
+          const [mockReviews] = useState([
+                    { id: 1, author: 'Ana López', rating: 5, date: 'Hace 2 días', content: 'Excelente curso, muy bien explicado y con ejemplos prácticos. Totalmente recomendado para principiantes.' },
+                    { id: 2, author: 'Carlos Méndez', rating: 4, date: 'Hace 1 semana', content: 'Buen contenido, aunque me gustaría que las lecciones del módulo 3 fueran más detalladas. Aún así, aprendí bastante.' },
+                    { id: 3, author: 'Sofía Castro', rating: 5, date: 'Hace 2 semanas', content: 'Me encantó la dinámica del profesor. Los materiales adicionales son súper útiles para repasar los temas.' }
+          ]);
           const { addToast } = useToast();
 
           useEffect(() => {
@@ -97,6 +102,7 @@ export default function CourseDetailPage() {
                                                   { key: 'content', label: 'Contenido', icon: BookOpen },
                                                   { key: 'announcements', label: 'Anuncios', icon: Megaphone },
                                                   { key: 'assignments', label: 'Tareas', icon: ClipboardList },
+                                                  { key: 'reviews', label: 'Reseñas', icon: Star },
                                         ].map(t => (
                                                   <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
                                                             className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${tab === t.key ? 'border-nebula-500 text-text-primary' : 'border-transparent text-text-muted hover:text-text-secondary'}`}>
@@ -191,6 +197,34 @@ export default function CourseDetailPage() {
                                                                       </div>
                                                             );
                                                   })}
+                                        </div>
+                              )}
+
+                              {tab === 'reviews' && (
+                                        <div className="space-y-4">
+                                                  {mockReviews.length === 0 ? (
+                                                            <div className="text-center py-12 text-text-muted text-sm">Este curso aún no tiene reseñas.</div>
+                                                  ) : mockReviews.map(r => (
+                                                            <div key={r.id} className="orionix-card p-5" style={{ transform: 'none' }}>
+                                                                      <div className="flex items-center justify-between mb-3">
+                                                                                <div className="flex items-center gap-3">
+                                                                                          <div className="w-8 h-8 rounded-full bg-nebula-500/20 flex items-center justify-center text-xs font-bold text-nebula-400">
+                                                                                                    {r.author.charAt(0)}
+                                                                                          </div>
+                                                                                          <div>
+                                                                                                    <h3 className="font-semibold text-sm text-text-primary">{r.author}</h3>
+                                                                                                    <p className="text-[10px] text-text-muted">{r.date}</p>
+                                                                                          </div>
+                                                                                </div>
+                                                                                <div className="flex items-center gap-1 text-amber-400">
+                                                                                          {Array.from({ length: 5 }).map((_, i) => (
+                                                                                                    <Star key={i} className={`w-3.5 h-3.5 ${i < r.rating ? 'fill-current' : 'text-text-muted/30'}`} strokeWidth={i < r.rating ? 0 : 2} />
+                                                                                          ))}
+                                                                                </div>
+                                                                      </div>
+                                                                      <p className="text-sm text-text-secondary leading-relaxed">{r.content}</p>
+                                                            </div>
+                                                  ))}
                                         </div>
                               )}
                     </div>
