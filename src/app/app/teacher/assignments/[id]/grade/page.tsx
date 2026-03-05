@@ -199,7 +199,7 @@ export default function GradingConsolePage() {
                                                                                           <div className="w-full h-[200px] bg-black/10 rounded mt-8 flex items-center justify-center font-mono text-sm">(Código fuente adjunto)</div>
                                                                                           {currentSubmission.comment && (
                                                                                                     <div className="mt-8 p-4 bg-yellow-100/50 border-l-4 border-yellow-400">
-                                                                                                              <p className="text-sm italic">Comentario del alumno: "{currentSubmission.comment}"</p>
+                                                                                                              <p className="text-sm italic">Comentario del alumno: &quot;{currentSubmission.comment}&quot;</p>
                                                                                                     </div>
                                                                                           )}
                                                                                 </div>

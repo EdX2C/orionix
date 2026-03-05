@@ -118,10 +118,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     router.replace('/auth/login');
           };
 
+          // ⚠️ DEMO ONLY: In production, role switching is NOT allowed from the frontend.
+          // Roles are assigned and validated exclusively by the backend.
+          // This function exists solely for demonstration purposes.
           const handleSwitchRole = (newRole: 'student' | 'teacher' | 'admin') => {
                     switchRole(newRole);
                     setRoleMenuOpen(false);
-                    addToast(`Cambiado a: ${roleLabels[newRole]}`, 'info');
+                    addToast(`⚠️ Modo demo: Cambiado a ${roleLabels[newRole]}`, 'info');
                     router.push(`/app/${newRole}/dashboard`);
           };
 
@@ -159,7 +162,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                                             {/* Role switcher dropdown (for demo) */}
                                                             {roleMenuOpen && (
                                                                       <div className="absolute top-full left-0 right-0 mt-1 py-1 rounded-xl border border-border-default bg-orion-800 z-10 animate-slide-up">
-                                                                                <p className="px-3 py-1.5 text-[10px] text-text-muted font-semibold uppercase tracking-wider">Cambiar rol (demo)</p>
+                                                                                <div className="px-3 py-1.5 flex items-center gap-1.5">
+                                                                                          <span className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">⚠️ Solo demo</span>
+                                                                                </div>
                                                                                 {(['student', 'teacher', 'admin'] as const).map(r => {
                                                                                           const RI = roleIcons[r];
                                                                                           return (

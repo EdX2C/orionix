@@ -3,10 +3,10 @@
 
 /* ===== Orionix Design Tokens ===== */
 @theme {
-  /* ── Primary: Deep Space Navy ── */
-  --color-orion-950: #050816;
-  --color-orion-900: #0a0e27;
-  --color-orion-800: #0f1538;
+  /* ── Primary: Deep Space Navy (softened from pure black) ── */
+  --color-orion-950: #080d1f;
+  --color-orion-900: #0c1230;
+  --color-orion-800: #111840;
   --color-orion-700: #141937;
   --color-orion-600: #1c2348;
   --color-orion-500: #2a3362;
@@ -1268,6 +1268,50 @@ html {
   opacity: 0.5;
 }
 
+/* ===== Certificate Card ===== */
+.certificate-card {
+  background: var(--color-surface-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.certificate-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245, 158, 11, 0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.certificate-card:hover {
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 8px 40px -12px rgba(245, 158, 11, 0.15);
+  transform: translateY(-2px);
+}
+
+/* ===== Pricing Card ===== */
+.pricing-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px -12px rgba(108, 92, 231, 0.2);
+}
+
+.pricing-card-popular {
+  border-color: var(--color-nebula-500) !important;
+  box-shadow: 0 0 0 1px var(--accent-tint-25), 0 8px 32px -8px rgba(108, 92, 231, 0.2);
+}
+
+.pricing-card-popular:hover {
+  box-shadow: 0 0 0 1px var(--accent-tint-40), 0 16px 48px -12px rgba(108, 92, 231, 0.3);
+}
+
 /* ===== Light Theme — Premium overrides ===== */
 [data-theme="light"] .aurora-orb {
   opacity: 0.15;
@@ -1321,6 +1365,23 @@ html {
 
 [data-theme="light"] .glow-separator {
   opacity: 0.25;
+}
+
+[data-theme="light"] .certificate-card {
+  border-color: rgba(245, 158, 11, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .certificate-card:hover {
+  box-shadow: 0 4px 24px -4px rgba(245, 158, 11, 0.1);
+}
+
+[data-theme="light"] .pricing-card:hover {
+  box-shadow: 0 8px 32px -8px rgba(108, 92, 231, 0.1);
+}
+
+[data-theme="light"] .pricing-card-popular {
+  box-shadow: 0 0 0 1px rgba(108, 92, 231, 0.15), 0 4px 16px -4px rgba(108, 92, 231, 0.1);
 }
 
 /* ===== Accessibility: Global Focus ===== */

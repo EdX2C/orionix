@@ -20,9 +20,42 @@ Object.defineProperty(globalThis, 'navigator', {
 describe('authService', () => {
           let authService: typeof import('@/services').authService;
 
+          const apiUsers = [
+                    { id: 'u1', name: 'Carlos Mendoza', email: 'admin@orionix.edu', role: 'admin', createdAt: new Date().toISOString(), isApproved: true, isActive: true },
+          ];
+
+          function mockApi() {
+                    vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => {
+                              const body = JSON.parse(String(init?.body || '{}')) as { op?: string; payload?: Record<string, unknown> };
+                              if (body.op === 'auth.login') {
+                                        const email = String(body.payload?.email || '');
+                                        const user = apiUsers.find(u => u.email === email) ?? null;
+                                        return { ok: true, json: async () => ({ data: user }) } as Response;
+                              }
+
+                              if (body.op === 'auth.register') {
+                                        const payload = body.payload || {};
+                                        const created = {
+                                                  id: `u-${Date.now()}`,
+                                                  name: String(payload.name || ''),
+                                                  email: String(payload.email || ''),
+                                                  role: String(payload.role || 'student'),
+                                                  createdAt: new Date().toISOString(),
+                                                  isApproved: String(payload.role || 'student') === 'student',
+                                                  isActive: true,
+                                        };
+                                        apiUsers.push(created);
+                                        return { ok: true, json: async () => ({ data: created }) } as Response;
+                              }
+
+                              return { ok: false, json: async () => ({ error: 'Unhandled op' }) } as Response;
+                    }));
+          }
+
           beforeEach(async () => {
                     localStorageMock.clear();
                     vi.resetModules();
+                    mockApi();
                     const mod = await import('@/services');
                     authService = mod.authService;
           });

@@ -6,6 +6,7 @@ import { courseService } from '@/services';
 import { Course } from '@/types';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import EmptyState from '@/components/ui/EmptyState';
+import PublicNavbar from '@/components/ui/PublicNavbar';
 import {
           BookOpen, Search, Users, Star, Filter, GraduationCap,
           Sparkles, BarChart3, Clock, ArrowRight
@@ -44,8 +45,9 @@ export default function PublicCourseCatalog() {
 
           return (
                     <div className="min-h-screen starfield">
+                              <PublicNavbar />
                               {/* ── Hero ── */}
-                              <div className="relative overflow-hidden">
+                              <div className="relative overflow-hidden pt-16">
                                         <div className="absolute inset-0 hero-gradient" />
                                         <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-24 text-center">
                                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-nebula-500/10 border border-nebula-500/20 mb-6">

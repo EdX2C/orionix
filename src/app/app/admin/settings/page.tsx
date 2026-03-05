@@ -2,7 +2,31 @@
 // ===== Admin: Settings =====
 import React, { useState } from 'react';
 import { useToast } from '@/context/ToastContext';
-import { Settings, Globe, Shield, Mail, Database, Loader2, Save, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Globe, Shield, Mail, Database, Loader2, Save, ToggleLeft, ToggleRight } from 'lucide-react';
+
+function ToggleSwitch({
+          enabled,
+          onToggle,
+          label,
+          description,
+}: {
+          enabled: boolean;
+          onToggle: () => void;
+          label: string;
+          description: string;
+}) {
+          return (
+                    <div className="flex items-center justify-between py-3 border-b border-border-subtle last:border-0">
+                              <div>
+                                        <p className="text-sm font-medium text-text-primary">{label}</p>
+                                        <p className="text-xs text-text-muted">{description}</p>
+                              </div>
+                              <button onClick={onToggle} className="shrink-0">
+                                        {enabled ? <ToggleRight className="w-8 h-8 text-emerald-400" /> : <ToggleLeft className="w-8 h-8 text-text-muted" />}
+                              </button>
+                    </div>
+          );
+}
 
 export default function AdminSettingsPage() {
           const { addToast } = useToast();
@@ -28,18 +52,6 @@ export default function AdminSettingsPage() {
                     addToast('Configuración guardada correctamente', 'success');
                     setSaving(false);
           };
-
-          const ToggleSwitch = ({ enabled, onToggle, label, description }: { enabled: boolean; onToggle: () => void; label: string; description: string }) => (
-                    <div className="flex items-center justify-between py-3 border-b border-border-subtle last:border-0">
-                              <div>
-                                        <p className="text-sm font-medium text-text-primary">{label}</p>
-                                        <p className="text-xs text-text-muted">{description}</p>
-                              </div>
-                              <button onClick={onToggle} className="shrink-0">
-                                        {enabled ? <ToggleRight className="w-8 h-8 text-emerald-400" /> : <ToggleLeft className="w-8 h-8 text-text-muted" />}
-                              </button>
-                    </div>
-          );
 
           return (
                     <div className="max-w-3xl space-y-8 animate-fade-in">

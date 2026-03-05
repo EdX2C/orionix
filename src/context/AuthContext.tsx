@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 // ===== Orionix Auth Context =====
 // Audit-reviewed: session validation, restricted role switch, auto-logout on revocation.
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';

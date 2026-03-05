@@ -5,7 +5,7 @@ import { Session } from '@/types';
 import { mockSessions } from '@/data/sessions';
 
 const STORAGE_KEY = 'orionix_session_id';
-let _sessions = [...mockSessions];
+const _sessions = [...mockSessions];
 
 // ── Helpers ──
 function generateSessionId(): string {

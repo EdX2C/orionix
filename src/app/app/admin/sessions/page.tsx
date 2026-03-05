@@ -53,6 +53,8 @@ export default function AdminSessionsPage() {
                     setLoading(false);
           }, []);
 
+          // Initial load of sessions list for admin view.
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           useEffect(() => { loadSessions(); }, [loadSessions]);
 
           const stats = sessionService.getStats();

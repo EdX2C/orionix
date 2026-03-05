@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { courseService } from '@/services';
 import { Course, Module } from '@/types';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
+import PublicNavbar from '@/components/ui/PublicNavbar';
 import {
           BookOpen, Users, Star, GraduationCap, Clock, Calendar, ArrowLeft,
           CheckCircle, Play, ChevronDown, BarChart3, Award, ArrowRight
@@ -50,8 +51,9 @@ export default function PublicCourseDetail() {
 
           return (
                     <div className="min-h-screen starfield">
+                              <PublicNavbar />
                               {/* ── Hero ── */}
-                              <div className="relative overflow-hidden">
+                              <div className="relative overflow-hidden pt-16">
                                         <div className="absolute inset-0 hero-gradient" />
                                         {course.thumbnail && (
                                                   <div className="absolute inset-0 opacity-10">

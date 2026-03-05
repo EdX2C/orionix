@@ -1,17 +1,12 @@
 // ===== Terms & Conditions =====
-import Link from 'next/link';
-import Logo from '@/components/ui/Logo';
-import { ArrowLeft } from 'lucide-react';
+import PublicNavbar from '@/components/ui/PublicNavbar';
 
 export default function TermsPage() {
           return (
                     <div className="min-h-screen starfield">
-                              <div className="max-w-3xl mx-auto px-6 py-16 relative z-10">
+                              <PublicNavbar />
+                              <div className="max-w-3xl mx-auto px-6 py-16 pt-24 relative z-10">
                                         <div className="mb-8">
-                                                  <Link href="/" className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors mb-6">
-                                                            <ArrowLeft className="w-4 h-4" /> Volver al inicio
-                                                  </Link>
-                                                  <div className="flex items-center gap-3 mb-4"><Logo size="sm" /></div>
                                                   <h1 className="text-3xl font-display font-bold">Términos y Condiciones</h1>
                                                   <p className="text-sm text-text-muted mt-2">Última actualización: 1 de enero de 2026</p>
                                         </div>

@@ -1,10 +1,11 @@
 'use client';
 // ===== Student Dashboard — Smart & Contextual =====
+// Audit-fixed: shows empty state if student has no enrollments.
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { courseService, assignmentService, reportService, notificationService } from '@/services';
+import { courseService, assignmentService, reportService, notificationService, enrollmentService } from '@/services';
 import { activityService } from '@/services/activityService';
-import { Course, Assignment, CourseProgress, Notification } from '@/types';
+import { Course, Assignment, CourseProgress, Notification, Enrollment } from '@/types';
 import { ActivityItem } from '@/components/ui/ActivityFeed';
 import ActivityFeed from '@/components/ui/ActivityFeed';
 import { useAuth } from '@/context/AuthContext';
@@ -12,7 +13,7 @@ import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import {
           BookOpen, ClipboardList, TrendingUp, Clock, ArrowRight, Calendar,
-          Flame, Sparkles, Bell, Target, BookMarked
+          Flame, Sparkles, Bell, Target, BookMarked, Rocket
 } from 'lucide-react';
 
 function getGreeting(): string {
@@ -29,6 +30,7 @@ export default function StudentDashboard() {
           const [progress, setProgress] = useState<CourseProgress[]>([]);
           const [activities, setActivities] = useState<ActivityItem[]>([]);
           const [notifications, setNotifications] = useState<Notification[]>([]);
+          const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
           const [loading, setLoading] = useState(true);
 
           useEffect(() => {
@@ -39,18 +41,21 @@ export default function StudentDashboard() {
                               reportService.getProgress(user.id),
                               activityService.getRecent(5),
                               notificationService.list(user.id),
-                    ]).then(([c, a, p, act, notif]) => {
+                              enrollmentService.listByStudent(user.id),
+                    ]).then(([c, a, p, act, notif, enr]) => {
                               setCourses(c.filter(x => x.status === 'published').slice(0, 3));
                               setAssignments(a.filter(x => x.status !== 'graded').slice(0, 4));
                               setProgress(p);
                               setActivities(act);
                               setNotifications(notif.filter(n => !n.isRead).slice(0, 3));
+                              setEnrollments(enr);
                               setLoading(false);
                     });
           }, [user]);
 
           if (loading) return <DashboardSkeleton />;
 
+          const hasEnrollments = enrollments.length > 0;
           const avgProgress = Math.round(progress.reduce((a, p) => a + p.percentage, 0) / (progress.length || 1));
           const pendingCount = assignments.filter(a => a.status === 'assigned').length;
           const nextDeadline = assignments.length > 0
@@ -73,12 +78,14 @@ export default function StudentDashboard() {
                                                             {getGreeting()}, <span className="text-gradient">{user?.name.split(' ')[0]}</span> 👋
                                                   </h1>
                                                   <p className="text-sm text-text-muted mt-1">
-                                                            {pendingCount > 0
-                                                                      ? `Tienes ${pendingCount} tarea${pendingCount > 1 ? 's' : ''} pendiente${pendingCount > 1 ? 's' : ''} por entregar.`
-                                                                      : '¡Estás al día! No tienes tareas pendientes.'}
+                                                            {!hasEnrollments
+                                                                      ? 'Bienvenido a Orionix. ¡Explora nuestros cursos y comienza tu viaje!'
+                                                                      : pendingCount > 0
+                                                                                ? `Tienes ${pendingCount} tarea${pendingCount > 1 ? 's' : ''} pendiente${pendingCount > 1 ? 's' : ''} por entregar.`
+                                                                                : '¡Estás al día! No tienes tareas pendientes.'}
                                                   </p>
                                         </div>
-                                        {avgProgress >= 70 && (
+                                        {hasEnrollments && avgProgress >= 70 && (
                                                   <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                                                             <Flame className="w-4 h-4 text-emerald-400" />
                                                             <span className="text-xs font-semibold text-emerald-400">¡Excelente racha!</span>
@@ -86,127 +93,155 @@ export default function StudentDashboard() {
                                         )}
                               </div>
 
-                              {/* ── KPI Stats ── */}
-                              <div data-testid="dashboard-stats" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                        {stats.map((s, i) => (
-                                                  <div key={i} className={`stat-card-premium ${s.accent} flex items-center gap-4 group`}>
-                                                            <div className={`w-11 h-11 rounded-xl ${s.bgColor} border flex items-center justify-center ${s.color} group-hover:scale-110 transition-transform`}>
-                                                                      <s.icon className="w-5 h-5" strokeWidth={1.7} />
-                                                            </div>
-                                                            <div>
-                                                                      <p className="text-xs text-text-muted">{s.label}</p>
-                                                                      <p className="text-xl font-display font-bold">{s.value}</p>
-                                                            </div>
+                              {/* ── Empty State: No Enrollments ── */}
+                              {!hasEnrollments && (
+                                        <div className="orionix-card p-8 md:p-12 text-center" style={{ transform: 'none' }}>
+                                                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-nebula-500/20 to-astral-500/10 border border-border-default flex items-center justify-center mx-auto mb-6">
+                                                            <Rocket className="w-10 h-10 text-nebula-400" />
                                                   </div>
-                                        ))}
-                              </div>
+                                                  <h2 className="text-xl font-display font-bold text-text-primary mb-3">
+                                                            Aún no estás inscrito en ningún curso
+                                                  </h2>
+                                                  <p className="text-sm text-text-muted mb-8 max-w-md mx-auto">
+                                                            Explora nuestro catálogo de cursos y encuentra el que mejor se adapte a tus intereses y objetivos de aprendizaje.
+                                                  </p>
+                                                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                                            <Link href="/app/student/courses" className="btn-primary px-8 py-3 flex items-center gap-2">
+                                                                      <BookOpen className="w-4 h-4" /> Explorar catálogo
+                                                            </Link>
+                                                            <Link href="/courses" className="btn-secondary px-8 py-3 flex items-center gap-2">
+                                                                      Ver todos los cursos <ArrowRight className="w-4 h-4" />
+                                                            </Link>
+                                                  </div>
+                                        </div>
+                              )}
 
-                              {/* ── Alerts / Notifications ── */}
-                              {notifications.length > 0 && (
-                                        <div className="orionix-card p-5 border-l-2 border-l-nebula-500" style={{ transform: 'none' }}>
-                                                  <div className="flex items-center gap-2 mb-3">
-                                                            <Bell className="w-4 h-4 text-nebula-400" />
-                                                            <h3 className="text-sm font-semibold">Notificaciones recientes</h3>
-                                                  </div>
-                                                  <div className="space-y-2">
-                                                            {notifications.map(n => (
-                                                                      <div key={n.id} className="flex items-start gap-3 py-1.5">
-                                                                                <div className="w-2 h-2 rounded-full bg-nebula-400 mt-1.5 shrink-0" />
-                                                                                <div className="min-w-0">
-                                                                                          <p className="text-sm text-text-primary">{n.title}</p>
-                                                                                          <p className="text-xs text-text-muted line-clamp-1">{n.message}</p>
+                              {/* ── The following sections only show when student has enrollments ── */}
+                              {hasEnrollments && (
+                                        <>
+                                                  {/* ── KPI Stats ── */}
+                                                  <div data-testid="dashboard-stats" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                                            {stats.map((s, i) => (
+                                                                      <div key={i} className={`stat-card-premium ${s.accent} flex items-center gap-4 group`}>
+                                                                                <div className={`w-11 h-11 rounded-xl ${s.bgColor} border flex items-center justify-center ${s.color} group-hover:scale-110 transition-transform`}>
+                                                                                          <s.icon className="w-5 h-5" strokeWidth={1.7} />
+                                                                                </div>
+                                                                                <div>
+                                                                                          <p className="text-xs text-text-muted">{s.label}</p>
+                                                                                          <p className="text-xl font-display font-bold">{s.value}</p>
                                                                                 </div>
                                                                       </div>
                                                             ))}
                                                   </div>
-                                                  <Link href={`/app/student/notifications`} className="text-xs text-nebula-400 hover:text-nebula-300 flex items-center gap-1 mt-3">
-                                                            Ver todas <ArrowRight className="w-3 h-3" />
-                                                  </Link>
-                                        </div>
-                              )}
 
-                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                        {/* ── Progress Section (2 cols) ── */}
-                                        <div className="lg:col-span-2 space-y-4">
-                                                  <div className="flex items-center justify-between">
-                                                            <h2 className="text-lg font-display font-semibold flex items-center gap-2">
-                                                                      <Target className="w-5 h-5 text-nebula-400" /> Mi progreso
-                                                            </h2>
-                                                            <Link href="/app/student/progress" className="text-xs text-nebula-400 hover:text-nebula-300 flex items-center gap-1">Ver todo <ArrowRight className="w-3 h-3" /></Link>
-                                                  </div>
-                                                  {progress.length === 0 ? (
-                                                            <EmptyState icon="book" title="Sin cursos activos" description="Inscríbete en un curso para comenzar a ver tu progreso." />
-                                                  ) : (
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                                      {progress.map(p => (
-                                                                                <div key={p.courseId} className="orionix-card p-5 group">
-                                                                                          <h3 className="font-semibold text-sm mb-3 text-text-primary line-clamp-1">{p.courseName}</h3>
-                                                                                          <div className="flex items-center justify-between text-xs text-text-muted mb-2">
-                                                                                                    <span>{p.completedUnits}/{p.totalUnits} unidades</span>
-                                                                                                    <span className="font-semibold text-text-primary">{p.percentage}%</span>
-                                                                                          </div>
-                                                                                          <div className="progress-track">
-                                                                                                    <div className="progress-fill" style={{ width: `${p.percentage}%` }} />
-                                                                                          </div>
-                                                                                          <p className="text-[10px] text-text-muted mt-2">Último acceso: {new Date(p.lastAccessed).toLocaleDateString('es', { day: 'numeric', month: 'short' })}</p>
-                                                                                </div>
-                                                                      ))}
-                                                            </div>
-                                                  )}
-                                        </div>
-
-                                        {/* ── Activity Feed (1 col) ── */}
-                                        <div>
-                                                  <div className="flex items-center justify-between mb-4">
-                                                            <h2 className="text-lg font-display font-semibold flex items-center gap-2">
-                                                                      <Sparkles className="w-5 h-5 text-astral-400" /> Actividad
-                                                            </h2>
-                                                  </div>
-                                                  <div className="orionix-card p-5" style={{ transform: 'none' }}>
-                                                            <ActivityFeed activities={activities} maxItems={5} />
-                                                  </div>
-                                        </div>
-                              </div>
-
-                              {/* ── Upcoming Assignments ── */}
-                              <div>
-                                        <div className="flex items-center justify-between mb-4">
-                                                  <h2 className="text-lg font-display font-semibold flex items-center gap-2">
-                                                            <ClipboardList className="w-5 h-5 text-astral-400" /> Tareas próximas
-                                                  </h2>
-                                                  <Link href="/app/student/assignments" className="text-xs text-nebula-400 hover:text-nebula-300 flex items-center gap-1">Ver todas <ArrowRight className="w-3 h-3" /></Link>
-                                        </div>
-                                        {assignments.length === 0 ? (
-                                                  <EmptyState icon="clipboard" title="Sin tareas pendientes" description="¡Estás al día con todas tus entregas!" />
-                                        ) : (
-                                                  <div className="space-y-3">
-                                                            {assignments.map(a => {
-                                                                      const statusColors: Record<string, string> = { assigned: 'badge-amber', in_progress: 'badge-cyan', submitted: 'badge-purple', graded: 'badge-green' };
-                                                                      const statusLabels: Record<string, string> = { assigned: 'Asignada', in_progress: 'En progreso', submitted: 'Entregada', graded: 'Calificada' };
-                                                                      const isUrgent = new Date(a.deadline).getTime() - Date.now() < 86400000 * 2;
-                                                                      return (
-                                                                                <div key={a.id} className={`orionix-card p-4 flex items-center gap-4 ${isUrgent ? 'border-l-2 border-l-amber-500' : ''}`}>
-                                                                                          <div className="w-10 h-10 rounded-xl bg-surface-glass border border-border-subtle flex items-center justify-center shrink-0">
-                                                                                                    <ClipboardList className="w-5 h-5 text-nebula-400" strokeWidth={1.5} />
-                                                                                          </div>
-                                                                                          <div className="flex-1 min-w-0">
-                                                                                                    <p className="font-semibold text-sm text-text-primary truncate">{a.title}</p>
-                                                                                                    <p className="text-xs text-text-muted">{a.courseName}</p>
-                                                                                          </div>
-                                                                                          <div className="flex items-center gap-3 shrink-0">
-                                                                                                    <span className={`badge ${statusColors[a.status]}`}>{statusLabels[a.status]}</span>
-                                                                                                    <div className="text-xs text-text-muted flex items-center gap-1 hide-mobile">
-                                                                                                              <Clock className="w-3 h-3" /> {new Date(a.deadline).toLocaleDateString('es', { day: 'numeric', month: 'short' })}
+                                                  {/* ── Alerts / Notifications ── */}
+                                                  {notifications.length > 0 && (
+                                                            <div className="orionix-card p-5 border-l-2 border-l-nebula-500" style={{ transform: 'none' }}>
+                                                                      <div className="flex items-center gap-2 mb-3">
+                                                                                <Bell className="w-4 h-4 text-nebula-400" />
+                                                                                <h3 className="text-sm font-semibold">Notificaciones recientes</h3>
+                                                                      </div>
+                                                                      <div className="space-y-2">
+                                                                                {notifications.map(n => (
+                                                                                          <div key={n.id} className="flex items-start gap-3 py-1.5">
+                                                                                                    <div className="w-2 h-2 rounded-full bg-nebula-400 mt-1.5 shrink-0" />
+                                                                                                    <div className="min-w-0">
+                                                                                                              <p className="text-sm text-text-primary">{n.title}</p>
+                                                                                                              <p className="text-xs text-text-muted line-clamp-1">{n.message}</p>
                                                                                                     </div>
                                                                                           </div>
-                                                                                </div>
-                                                                      );
-                                                            })}
-                                                  </div>
-                                        )}
-                              </div>
+                                                                                ))}
+                                                                      </div>
+                                                                      <Link href={`/app/student/notifications`} className="text-xs text-nebula-400 hover:text-nebula-300 flex items-center gap-1 mt-3">
+                                                                                Ver todas <ArrowRight className="w-3 h-3" />
+                                                                      </Link>
+                                                            </div>
+                                                  )}
 
-                              {/* ── Recommended Courses ── */}
+                                                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                                            {/* ── Progress Section (2 cols) ── */}
+                                                            <div className="lg:col-span-2 space-y-4">
+                                                                      <div className="flex items-center justify-between">
+                                                                                <h2 className="text-lg font-display font-semibold flex items-center gap-2">
+                                                                                          <Target className="w-5 h-5 text-nebula-400" /> Mi progreso
+                                                                                </h2>
+                                                                                <Link href="/app/student/progress" className="text-xs text-nebula-400 hover:text-nebula-300 flex items-center gap-1">Ver todo <ArrowRight className="w-3 h-3" /></Link>
+                                                                      </div>
+                                                                      {progress.length === 0 ? (
+                                                                                <EmptyState icon="book" title="Sin cursos activos" description="Inscríbete en un curso para comenzar a ver tu progreso." />
+                                                                      ) : (
+                                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                                          {progress.map(p => (
+                                                                                                    <div key={p.courseId} className="orionix-card p-5 group">
+                                                                                                              <h3 className="font-semibold text-sm mb-3 text-text-primary line-clamp-1">{p.courseName}</h3>
+                                                                                                              <div className="flex items-center justify-between text-xs text-text-muted mb-2">
+                                                                                                                        <span>{p.completedUnits}/{p.totalUnits} unidades</span>
+                                                                                                                        <span className="font-semibold text-text-primary">{p.percentage}%</span>
+                                                                                                              </div>
+                                                                                                              <div className="progress-track">
+                                                                                                                        <div className="progress-fill" style={{ width: `${p.percentage}%` }} />
+                                                                                                              </div>
+                                                                                                              <p className="text-[10px] text-text-muted mt-2">Último acceso: {new Date(p.lastAccessed).toLocaleDateString('es', { day: 'numeric', month: 'short' })}</p>
+                                                                                                    </div>
+                                                                                          ))}
+                                                                                </div>
+                                                                      )}
+                                                            </div>
+
+                                                            {/* ── Activity Feed (1 col) ── */}
+                                                            <div>
+                                                                      <div className="flex items-center justify-between mb-4">
+                                                                                <h2 className="text-lg font-display font-semibold flex items-center gap-2">
+                                                                                          <Sparkles className="w-5 h-5 text-astral-400" /> Actividad
+                                                                                </h2>
+                                                                      </div>
+                                                                      <div className="orionix-card p-5" style={{ transform: 'none' }}>
+                                                                                <ActivityFeed activities={activities} maxItems={5} />
+                                                                      </div>
+                                                            </div>
+                                                  </div>
+
+                                                  {/* ── Upcoming Assignments ── */}
+                                                  <div>
+                                                            <div className="flex items-center justify-between mb-4">
+                                                                      <h2 className="text-lg font-display font-semibold flex items-center gap-2">
+                                                                                <ClipboardList className="w-5 h-5 text-astral-400" /> Tareas próximas
+                                                                      </h2>
+                                                                      <Link href="/app/student/assignments" className="text-xs text-nebula-400 hover:text-nebula-300 flex items-center gap-1">Ver todas <ArrowRight className="w-3 h-3" /></Link>
+                                                            </div>
+                                                            {assignments.length === 0 ? (
+                                                                      <EmptyState icon="clipboard" title="Sin tareas pendientes" description="¡Estás al día con todas tus entregas!" />
+                                                            ) : (
+                                                                      <div className="space-y-3">
+                                                                                {assignments.map(a => {
+                                                                                          const statusColors: Record<string, string> = { assigned: 'badge-amber', in_progress: 'badge-cyan', submitted: 'badge-purple', graded: 'badge-green' };
+                                                                                          const statusLabels: Record<string, string> = { assigned: 'Asignada', in_progress: 'En progreso', submitted: 'Entregada', graded: 'Calificada' };
+                                                                                          const isUrgent = new Date(a.deadline).getTime() - new Date().getTime() < 86400000 * 2;
+                                                                                          return (
+                                                                                                    <div key={a.id} className={`orionix-card p-4 flex items-center gap-4 ${isUrgent ? 'border-l-2 border-l-amber-500' : ''}`}>
+                                                                                                              <div className="w-10 h-10 rounded-xl bg-surface-glass border border-border-subtle flex items-center justify-center shrink-0">
+                                                                                                                        <ClipboardList className="w-5 h-5 text-nebula-400" strokeWidth={1.5} />
+                                                                                                              </div>
+                                                                                                              <div className="flex-1 min-w-0">
+                                                                                                                        <p className="font-semibold text-sm text-text-primary truncate">{a.title}</p>
+                                                                                                                        <p className="text-xs text-text-muted">{a.courseName}</p>
+                                                                                                              </div>
+                                                                                                              <div className="flex items-center gap-3 shrink-0">
+                                                                                                                        <span className={`badge ${statusColors[a.status]}`}>{statusLabels[a.status]}</span>
+                                                                                                                        <div className="text-xs text-text-muted flex items-center gap-1 hide-mobile">
+                                                                                                                                  <Clock className="w-3 h-3" /> {new Date(a.deadline).toLocaleDateString('es', { day: 'numeric', month: 'short' })}
+                                                                                                                        </div>
+                                                                                                              </div>
+                                                                                                    </div>
+                                                                                          );
+                                                                                })}
+                                                                      </div>
+                                                            )}
+                                                  </div>
+                                        </>
+                              )}
+
+                              {/* ── Recommended Courses (always visible) ── */}
                               <div>
                                         <div className="flex items-center justify-between mb-4">
                                                   <h2 className="text-lg font-display font-semibold flex items-center gap-2">

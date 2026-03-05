@@ -84,8 +84,9 @@ export default function NotificationsPage() {
           });
 
           // Group by date
-          const today = new Date().toDateString();
-          const yesterday = new Date(Date.now() - 86400000).toDateString();
+          const now = new Date();
+          const today = now.toDateString();
+          const yesterday = new Date(now.getTime() - 86400000).toDateString();
           const groups: { label: string; items: Notification[] }[] = [];
 
           const todayItems = filtered.filter(n => new Date(n.createdAt).toDateString() === today);
